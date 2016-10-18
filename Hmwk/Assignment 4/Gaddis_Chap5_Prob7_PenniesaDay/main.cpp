@@ -20,6 +20,8 @@ using namespace std;
 int main(int argc, char** argv) {
     //Declare all Variables Here
     float earned;
+    int pennies=1;
+    float totpen=0;
     short days;
     //Input or initialize values Here
     cout<<"This program calculates how much money you would make if you earned a penny and doubled it each day"<<endl;
@@ -32,12 +34,17 @@ int main(int argc, char** argv) {
     }
     
     //Process/Calculations Here
+    cout<<"Days  Pennies Earned"<<endl;
+    cout<<"--------------------"<<endl;
+    
     for (short i=1; i<=days; i++){
-        
+        cout<<i<<"          "<<pennies<<endl;
+        totpen+=pennies;
+        pennies=pennies*2;
     }
     
     //Output Located Here
-
+    cout<<"You made "<<totpen<<" pennies, or "<<totpen/100<<" dollars"<<endl;
     //Exit
     return 0;
 }
