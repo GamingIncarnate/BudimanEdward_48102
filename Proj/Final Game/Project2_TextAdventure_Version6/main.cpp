@@ -533,12 +533,12 @@ int dangerRd(){
                 isDone=true;
                 in.close();
                 out.close();
-                return 21;}
+                return 21;
+            }
             cout<<line<<endl; //Display road lines
             out<<line; //Shove new lines into player file
         }
         //Player movements
-        char move;
         cin>>move;
         switch (move){
             case 'A':case'a':pcol-=2; break; //Character moves one lane left
@@ -551,12 +551,16 @@ int dangerRd(){
         //See if the player has reached the end
         if (prow==12){
             isDone=true;
-        }//Close the if statement    
+            in.close();
+            out.close();
+            return 20;
+        }//Close the if statement  
+        //Close the files for the loop
+        in.close();
+        in.clear();
+        out.close();
+        out.clear();
     }//Close while loop
-    //Close the files
-    in.close();
-    out.close();
-    return 20;
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
