@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.cpp
  * Author: Edward Budiman
  * Created on December 8, 2016, 9:43 AM
@@ -12,12 +12,14 @@
 #include <ctime>    //Time
 #include <cstdlib>  //Random Number Generator
 #include <iomanip>  //Numer manipulation
+#include <cmath>    //Square root
+#include <vector>   //Vectors
 using namespace std;
 
 //User Libraries
 
 //Global Constants
-const short COLUMNS=5; //Columns for the 2d array
+const short COLUMNS=2; //Columns for the 2d array
 
 //Function Prototypes
 void dispMap();                            //Use to display map
@@ -25,12 +27,12 @@ void showMenu();                           //Use to display menu
 void makeRd();                             //Creates a random road
 void saveGame(int);                        //Saves current instance into a file
 void storyFunc(string[]);                  //String that holds the story
-void fillAry(int,int[][COLUMNS]);          //Fills the 2d array randomly
-void useAry(int,int[][COLUMNS]);           //Arbitrarily uses the 2d array by sorting and searching
+void load(int,float[][COLUMNS]);           //Loads the 2d array with random numbers
 void inventory(int,int,int[],string[]);    //Use to display inventory
 bool death(int);                           //Use to check and validate death
 int load();                                //Reads save file for instance
-int dangerRd();                            //Old project 1 game 
+int dangerRd();                            //Old project 1 game
+int useAry(int,float[][COLUMNS]);          //Arbitrarily uses the 2d array by sorting and searching
 float ageNum(short);                       //Arbritrary float and read by value
 
 //Program Execution
@@ -38,18 +40,17 @@ int main(int argc, char** argv) {
     //Declare all Variables Here
     bool isDead=false;          //Boolean value to determine death
     char menuItm;               //Option player chooses in the menu
-    const int SIZE=100,         //Constant size for arrays                  
+    const int SIZE=100,         //Constant size for arrays
             INVSIZE=10;         //Constant size for inventory arrays
     int instance=0,             //Current part of the story
             invNum[INVSIZE]={}; //Numbers on the left side of the inventory list
-    int random[SIZE][COLUMNS];  //2d array
+    float random[SIZE][COLUMNS];  //2d array
     float age;                  //Age value at the end of the game
     string storyItm[SIZE];      //Holds the story instances
     string invName[INVSIZE];    //Holds the names of items in the inventory
     //Set random array
     srand(static_cast<unsigned int>(time(0)));
-    fillAry(SIZE,random);
-    useAry(SIZE,random);
+    load(SIZE,random);
     //Display main menu
     showMenu();
     cin>>menuItm;
@@ -85,14 +86,17 @@ int main(int argc, char** argv) {
                 cout<<storyItm[instance]<<endl;
                 if (instance==20){
                     age=ageNum(5); //Call ageNum to randomize age
-                    if (age<11){age+=40;
-                    }else if (age<21){age+=30;
-                    }else age+=20;                            
+                    int i=useAry(SIZE,random); //Find where 69 is
+                    while (i=-1){ //If not found refill array and re-search
+                        load(SIZE,random);
+                        i=useAry(SIZE,random);
+                    }
+                    age+=i;
                     cout<<setprecision(3)<<age<<" years old. Thanks for playing!"<<endl;
                 }
                 return 0;
             }
-        }while(instance!=103); //Ends the do-while loop   
+        }while(instance!=103); //Ends the do-while loop
     }else if (menuItm==50){ //When the player loads a previous game
         instance=load(); //Load the saved instance
         do{
@@ -115,14 +119,17 @@ int main(int argc, char** argv) {
                 cout<<storyItm[instance]<<endl;
                 if (instance==20){
                     age=ageNum(5); //Call ageNum to randomize age
-                    if (age<11){age+=40;
-                    }else if (age<21){age+=30;
-                    }else age+=20;                            
+                    int i=useAry(SIZE,random); //Find where 69 is
+                    while (i=-1){ //If not found refill array and re-search
+                        load(SIZE,random);
+                        i=useAry(SIZE,random);
+                    }
+                    age+=i;
                     cout<<setprecision(3)<<age<<" years old. Thanks for playing!"<<endl;
                 }
                 return 0;
             }
-        }while(instance!=103);  
+        }while(instance!=103);
     }else if (menuItm==51){ //When the player reads instructions
         cout<<"==Instructions=="<<endl;
         cout<<"This is a choose your own adventure game. Playing the game is easy.\n"
@@ -157,10 +164,10 @@ void dispMap(){
     for (int row=0;row<=rows;row++){
         getline(in,line);
         cout<<line<<endl;
-    }   
-    //Close and clear the file    
+    }
+    //Close and clear the file
     in.close();
-    in.clear();           
+    in.clear();
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -202,7 +209,7 @@ void makeRd(){
     rdRow="===START===";out<<rdRow<<endl; //Create start banner
     rdRow="x] | | | [x";out<<rdRow<<endl; //Create blank starting road line
     for (short i=0; i<=10; i++){ //Random road generator
-        obsticle=rand()%6+rand()%6;
+        obsticle=()%6+rand()%6;
         obst=obsticle+0.5f;
         switch (obst){
             case 0:rdRow="x]x|x| | [x"; break;
@@ -210,14 +217,14 @@ void makeRd(){
             case 2:rdRow="x]x| | |x[x"; break;
             case 3:rdRow="x] |x|x| [x"; break;
             case 4:rdRow="x] |x| |x[x"; break;
-            case 5:rdRow="x] | |x|x[x"; break;                   
+            case 5:rdRow="x] | |x|x[x"; break;
         }
         out<<rdRow<<endl; //Shove random road lines into road.dat
     }
     rdRow="====END===="; out<<rdRow<<endl; //Create end banner
     //close road.dat
     out.close();
-    out.clear();  
+    out.clear();
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -239,7 +246,7 @@ void saveGame(int instance){
         out<<instance;
         //Close the file
         out.close();
-        out.clear();  
+        out.clear();
         cout<<"Game saved."<<endl;
     }
 }
@@ -257,7 +264,7 @@ void storyFunc(string storyItm[]){
             "What do you do?\n"
             "1. I really try and remember who I am and how I got here. I sit down and focus my mind.\n"
             "2. I take a better look around the place to see if I can find any clues or useful items.\n"
-            "3. I choose a direction and start walking.";    
+            "3. I choose a direction and start walking.";
     storyItm[1]="Some time passes. Exactly how long is unknown, as there is no light reaches this underground prison. "
             "As you continue to ponder about your past, little snippets return to your memory. Your name is... Gareth... "
             "Gareth Something. Your head starts to ache as you strain to remember more. The last thing you remember doing "
@@ -265,19 +272,19 @@ void storyFunc(string storyItm[]){
             "You touch your head with your fingertips. It's wet.\n"
             "4. I cry out for help as loud as I can.\n"
             "2. I take a better look around the place to see if I can find any clues or useful items.\n"
-            "3. I choose a direction and start walking.";   
+            "3. I choose a direction and start walking.";
     storyItm[2]="You search around, gingerly feeling for things in front of you. You can't even see your hands in the "
             "pitch darkness. By sheer luck, you kick a loose rock. Picking it up, you are surprised to fid that is has a "
             "defined shape. You have found a brick. But what is a brick doing here? Where exactly are you?\n"
             "5. I look for other signs of life in the cave.\n"
             "4. I cry out for help as loud as I can.\n"
-            "3. I choose a direction and start walking.";    
+            "3. I choose a direction and start walking.";
     storyItm[3]="You start to walk in a random direction, reaching out with ever sense but sight, listening to your instincts "
             "more than logic. After a few seconds of walking, you hit a wall. It's surface is smooth and made of large,"
             " bulbous shapes. It's a stone wall. How peculiar. You decide to walk along the wall to see what else you can "
             "find. A few moments later, you hit another wall. Perhaps this is not a natural cave as you first thought.\n"
             "4. I cry out for help as loud as I can.\n"
-            "6. I keep walking along the wall and look for an exit.";    
+            "6. I keep walking along the wall and look for an exit.";
     storyItm[4]="You take a lung-full of the thick air, and you bellow a the loudest yell you can muster. The sound bounces "
             "painfully back to your ears. Hold on. What was that? AS the ringing fades from your ears you hear the sound "
             "of footsteps from up above. It's followed quickly by the sound of a creaking door, and there is a faint glow "
@@ -285,12 +292,12 @@ void storyFunc(string storyItm[]){
             "THUD. THUD. THUD. Something is making its way down to you.\n"
             "7. I stay still and wait for it to come down. Who knows? It could be friendly.\n"
             "8. I hide around the corner of the stairway and wait to attack whatever comes.\n"
-            "9. I look around quickly for a place to hide.";   
+            "9. I look around quickly for a place to hide.";
     storyItm[5]="You keep searching, but in vain. You see nothing in the all encompassing void around you. Just as you feel "
             "insanity creeping upon your mind, you walk into a wall. As you move your hands along its smooth surface, you "
             "come to the realization that its a stone wall. Man-made and unnatural. Where ARE you?\n"
             "4. I cry out for help as loud as I can.\n"
-            "6. I keep walking along the wall and look for an exit.";   
+            "6. I keep walking along the wall and look for an exit.";
     storyItm[6]="You slowly make your way along the wall, reaching out as far as possible with your arms. To your great "
             "relief, you stumble across an entrance to a corridor. Perhaps there is a way out of here. The corridor leads "
             "to a spiral stairway, which you slowly take up up upwards into the unknown darkness. As you round the "
@@ -300,18 +307,18 @@ void storyFunc(string storyItm[]){
             "head, is making a meal of what appears to be the remains of... a human.\n"
             "10. I sneak up behind him and attack. I can win with the element of surprise.\n"
             "11. Attacking such a thing is crazy. I try to sneak past it.\n"
-            "12. It doesn't look too scary. I yell to try and scare it off.";   
+            "12. It doesn't look too scary. I yell to try and scare it off.";
     storyItm[7]="You decide to stay put and see what comes appears. THUD. THUD. THUD. Closer and closer the noises come. The "
             "faint glow getting brighter and brighter until IT, comes into view. A giant creature with green skin and muscles "
             "bigger than your head. It snorts and growls as it stares at you.\n"
             "14. I try to run past it!\n"
             "15. I attack before it can react!\n"
-            "16. I stay perfectly still and don't move a muscle.";    
+            "16. I stay perfectly still and don't move a muscle.";
     storyItm[8]="You steel your nerves for the fight to come, and press your back against the wall. Your breathing intensifies "
             "but you manage to lower it to a less audible state. THUD. THUD. THUD. A candle turns the corner and... you "
             "leap onto the whatever was holding the candle! Unfortunately, you find yourself on the back of an orc. With a "
             "hand as big as your head, it grips your skull and lifts you from its back. It promptly crushes your skull with "
-            "one swift motion. You are dead.";   
+            "one swift motion. You are dead.";
     storyItm[9]="Looking around at the new shapes in the room, you spot what appears to be a pile of bricks. Thinking on your "
             "feet, you decide to hide behind it. Whatever was lumbering its way down the stairs arrives, and you can hear "
             "loud breathing and an occasional snort. Whatever this is isn't human, and in this world, that means not friendly. "
@@ -325,7 +332,7 @@ void storyFunc(string storyItm[]){
             "jumps up and begins to thrash around the cave. You hold on for dear life as the orc swings you helplessly back and"
             " forth. It backs up onto the wall and squishes you, knocking the air clean from your lungs, and causing dust to "
             "fall from the ceiling. You let go and fall to the floor. Almost blind with anger, the orc bellows at you, spit "
-            "flying from its mouth. It stomps your head into the floor and your skull turns to mush. You are dead.";   
+            "flying from its mouth. It stomps your head into the floor and your skull turns to mush. You are dead.";
     storyItm[11]="Step by step, inch by inch, you make your way past the brute. Crunch munch munch. As you get closer you can see "
             "what it had been snacking on more clearly. It was a human, an old man it seems. the scene is too gruesome to "
             "describe, along with the terrifying stench. Holding your breath and walking on the tips of your toes, you manage to "
@@ -335,20 +342,20 @@ void storyFunc(string storyItm[]){
             "Luckily, there is a road that leads from the house to a pond and another, much older house. From the house, you can "
             "make your way towards the town.\n"
             "18. I make my way to the pond.\n"
-            "19. I make my way into town.";   
+            "19. I make my way into town.";
     storyItm[12]="Taking a huge breath, filling your lungs to the top, you let out the bravest, scarriest scream you can muster. "
             "The orc is still... after what seems like eons it turns around and stares right at you. It sucks in gallons of air "
             "from its huge mouth and returns the gesture. The sheer force of its voice rocks your entire body. Your ears are"
             " ringing and you feel dizzy. With surprising speed, the orc crosses the distance between you and him. With a single"
             "punch, it knocks you to the wall. You land badly, with your head first. Your vision slowly fades as you lose your "
-            "grip on consciousness. Unfortunately, you never wake up again.";    
+            "grip on consciousness. Unfortunately, you never wake up again.";
     storyItm[13]="You squat prepare to sprint for your life. 1...2...3... and go! You explode from behind the pile of bricks and "
             "charge towards the stairway. Now you see what it was. An orc. Green with muscles the size of your head, it stands "
             "between you and the only exit from the room. You try to run past it, but it's hulking mass is simply too big to "
-            "squeeze through. It grabs your head with its meaty hands and squeezes. It's horrific face is the last thing you see.";    
+            "squeeze through. It grabs your head with its meaty hands and squeezes. It's horrific face is the last thing you see.";
     storyItm[14]="You sprint towards the orc and try to get to the stairway behind it. Unfortunately, it's hulking mass is simply "
             "too big to squeeze through. It grabs your head with its meaty hands and squeezes. It's horrific face is the last thing "
-            "you see.";    
+            "you see.";
     storyItm[15]="You pick up one of the bricks from the pile nearby, and you charge the creature. You manage to reach it before it"
             "could think, and hit it in the head with the brick. And you hit it in the head with the brick. And you hit it in the "
             "head with the brick. Over and over and over. The orc barely flinches as you exhaust yourself. After a few minutes of "
@@ -361,7 +368,7 @@ void storyFunc(string storyItm[]){
             "to be the remains of... a human.\n"
             "10. I sneak up behind him and attack. I can win with the element of surprise.\n"
             "11. Attacking such a thing is crazy. I try to sneak past it.\n"
-            "12. It doesn't look too scary. I yell to try and scare it off.";     
+            "12. It doesn't look too scary. I yell to try and scare it off.";
     storyItm[17]="You hold your breath for what seems like an eternity. 1...2...3... minutes pass. You are paralyzed with fear. Just"
             "when you think you can't hold it any longer, the orc turns around and leaves the room. You give a sigh or relief. "
             "That was a close one. You take the stairway upwards and see quite a sight. As you round the corner of the spiral, "
@@ -370,7 +377,7 @@ void storyFunc(string storyItm[]){
             "making a meal of what appears to be the remains of... a human.\n"
             "10. I sneak up behind him and attack. I can win with the element of surprise.\n"
             "11. Attacking such a thing is crazy. I try to sneak past it.\n"
-            "12. It doesn't look too scary. I yell to try and scare it off."; 
+            "12. It doesn't look too scary. I yell to try and scare it off.";
     storyItm[18]="As you make your way to the pond, walking the old dirt road, where it leads to the side of a large hill. As you round "
             "the corner though, you come upon an impasse. The way ahead is blocked by a fallen tree. You look to the sides for any way "
             "around the blockage, but to no avail. It seems you have to turn back for now.\n"
@@ -391,60 +398,24 @@ void storyFunc(string storyItm[]){
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
-//*************************  Fill Array ****************************************
+//*************************    Load     ****************************************
 //Purpose:  Fill the 2d array with random values
 //Inputs:   Constant size of arrays(SIZE) & the 2d array
 //Output:   Filled 2d array
 //******************************************************************************
-void fillAry(int n,int random[][COLUMNS]){
+void load(int n,float random[][COLUMNS]){
     //Fill the array
     for (int i=0;i<=n;i++){ //Every row
         for(int j=0;j<=COLUMNS;j++){ //Every column
-            random[i][j]=rand()%1000+1; //random numbers between 1 and 1000
+            random[i][j]=sqrt(rand()%100+1); //random numbers
         }
     }
-}
-//000000011111111112222222222333333333344444444445555555555666666666677777777778
-//345678901234567890123456789012345678901234567890123456789012345678901234567890
-//*************************  Use Array  ****************************************
-//Purpose:  Utilize the 2d array for something
-//Inputs:   SIZE & randomly filled 2d array
-//Output:   N/A
-//******************************************************************************
-void useAry(int size,int random[][COLUMNS]){
-    //Declare Variables
-    const int SIZE=500;
-    int randum[SIZE]; //1d array which holds info from the 2d array
-    int rows,value,find;
-    //Transfer the values from the random 2d array to a 1d array
-    for(int i=0;i<=SIZE; i++){
-        for(int j=0;j<=COLUMNS;j++){
-            randum[i]=random[rows][j];
-        }
-        if(i%5==0) rows++;
-    }   
-    //Sort the new 1d array
-    for(int i=0;i<SIZE-1;i++){
-        for(int j=i+1;j<SIZE;j++){
-            if(randum[i]>randum[j]){
-                randum[i]=randum[i]^randum[j];
-                randum[j]=randum[i]^randum[j];
-                randum[i]=randum[i]^randum[j];
-            }
-        }
-    }   
-    //Linear search for random number
-    value=rand()%1000+1;
-    for(int i=0;i<SIZE;i++){
-        if(randum[i]==value)find=i;
-    }
-    find=-1;
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //*************************  Inventory  ****************************************
 //Purpose:  Display player inventory
-//Inputs:   The instance number, size of the inventory array, the array for 
+//Inputs:   The instance number, size of the inventory array, the array for
 //          numbering the inventory list, & the array for item names
 //Output:   Outputs display of inventory arrays
 //******************************************************************************
@@ -460,7 +431,7 @@ void inventory(int instance,int INVSIZE,int invNum[],string invName[]){
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //***************************  Death  ******************************************
 //Purpose:  Determine if player is dead
-//Inputs:   Instance number 
+//Inputs:   Instance number
 //Output:   Outputs boolean value
 //******************************************************************************
 bool death(int instance){
@@ -499,7 +470,7 @@ int load(){
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //*************************  Danger Road ***************************************
-//Purpose:  Pad the game out with strange dream sequence/ put previous code to 
+//Purpose:  Pad the game out with strange dream sequence/ put previous code to
 //          good use
 //Inputs:   N/A
 //Output:   Integer value instance
@@ -554,7 +525,7 @@ int dangerRd(){
             in.close();
             out.close();
             return 20;
-        }//Close the if statement  
+        }//Close the if statement
         //Close the files for the loop
         in.close();
         in.clear();
@@ -564,13 +535,61 @@ int dangerRd(){
 }
 //000000011111111112222222222333333333344444444445555555555666666666677777777778
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
+//*************************  Use Array  ****************************************
+//Purpose:  Transfer 2d array into 1d and search for a value
+//Inputs:   SIZE & randomly filled 2d array
+//Output:   Position of value in array or -1 if not found
+//******************************************************************************
+int useAry(int size,float random[][COLUMNS]){
+    //Declare Variables
+    const int SIZE=200;
+    int randum[SIZE]; //1d array which holds info from the 2d array
+    int rows,value;
+    //Transfer the values from the random 2d array to a 1d array
+    for(int i=0;i<=SIZE; i++){
+        for(int j=0;j<=COLUMNS;j++){
+            randum[i]=random[rows][j];
+        }
+        if(i%5==0) rows++;
+    }
+    //Sort the new 1d array
+    for(int i=0;i<SIZE-1;i++){
+        for(int j=i+1;j<SIZE;j++){
+            if(randum[i]>randum[j]){
+                randum[i]=randum[i]^randum[j];
+                randum[j]=randum[i]^randum[j];
+                randum[i]=randum[i]^randum[j];
+            }
+        }
+    }
+    //Linear search for random number
+    value=sqrt(4761);
+    for(int i=0;i<SIZE;i++){
+        if(randum[i]==value)return i;
+    }
+    return -1;
+}
+//000000011111111112222222222333333333344444444445555555555666666666677777777778
+//345678901234567890123456789012345678901234567890123456789012345678901234567890
 //*************************  Age Number  ***************************************
 //Purpose:  Further randomize the age value
 //Inputs:   Integer value of 5
 //Output:   Random Number
 //******************************************************************************
 float ageNum(short n){
+    //Declare Variables
+    int size=rand()%100+1;
+    int index=rand()%100;
+    int value;
+    vector<int> vector(size);
     float ageNum;
+    //Fill vector with random numbers
+    for (int i=0;i<=size;i++){
+        vector[i]=rand()%10;
+    }
+    //Point to a random place in the vector and pull value
+    value=vector[index];
     ageNum=((rand()%100+1)/(rand()%10+1))+(sizeof(int)*n);
+    ageNum+=value;
     return ageNum;
 }
